@@ -26,7 +26,7 @@ def get_from_folder(name, ext='.png'):
     return filelist
 
 
-def main(images):
+def main(images, output=None):
     if path.isdir(images[0]):
         images = get_from_folder(images[0])
 
@@ -58,8 +58,11 @@ def main(images):
 
     # Display image
     # final.show()
-    final.save('spritesheet.png')
-    print('## Created Spritesheet')
+    if output is None:
+        output = 'spritesheet.png'
+    final.save(output)
+
+    print("## Created Spritesheet '{}'".format(output))
     print('Size: {}\nFormat: {}\nMode: {}'.format(
         final.size, final.format, final.mode))
 
@@ -71,7 +74,9 @@ if __name__ == '__main__':
         'image',
         help='images or a folder that contains the images', type=str,
         nargs='+')
-
+    parser.add_argument(
+        '-o', '--output',
+        help='output to given file')
     args = parser.parse_args()
 
-    main(images=args.image)
+    main(images=args.image, output=args.output)
