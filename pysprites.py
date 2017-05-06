@@ -6,11 +6,30 @@
 """ """
 
 from sys import exit
+from os import path, listdir
+from os.path import join as osp
 
 from PIL import Image
 
 
+def get_from_folder(name, ext='.png'):
+    """Return a list of images contained on the given folder.
+
+    Args:
+        name (str): The folder name
+        ext (str, optional): The file extension to filter the images
+
+    Returns:
+        list(srt): A list with the paths to all the images
+    """
+    filelist = [osp(name, f) for f in listdir(name) if f.endswith(ext)]
+    return filelist
+
+
 def main(images):
+    if path.isdir(images[0]):
+        images = get_from_folder(images[0])
+
     try:
         im = [Image.open(i).convert('RGBA') for i in images]
     except IOError as ioe:
