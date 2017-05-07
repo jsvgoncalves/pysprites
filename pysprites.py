@@ -5,9 +5,11 @@
 
 """ """
 
+from __future__ import division
 from sys import exit
 from os import path, listdir
 from os.path import join as osp
+from math import ceil
 
 from PIL import Image
 
@@ -26,7 +28,7 @@ def get_from_folder(name, ext='.png'):
     return filelist
 
 
-def main(images, output=None):
+def main(images, output=None, cols=None):
     if path.isdir(images[0]):
         images = get_from_folder(images[0])
 
@@ -36,15 +38,15 @@ def main(images, output=None):
         print('Error: {}'.format(ioe))
         exit(1)
 
-    # Pre processing
-    dims = (1, 8)  # cols, rows
+    # Pre-processing
+    if cols is None:
+        cols = 2  # cols, rows
+    dims = (cols, int(ceil(len(im) / cols)))
+
     sprite_size = im[0].size  # width, height
     spritesheet_size = ([a * b for a, b in zip(sprite_size, dims)])
 
     final = Image.new('RGBA', spritesheet_size, (0, 0, 0, 123))
-
-    for i in im:
-        final.paste(i, (dims[0] * sprite_size[0], 0))
 
     # Paste all the images
     try:
@@ -52,6 +54,8 @@ def main(images, output=None):
             for col in xrange(0, dims[0]):
                 final.paste(im[dims[0] * row + col],
                             (col * sprite_size[0], row * sprite_size[1]))
+
+    # !TODO: Fix this when `len(im)%cols > 0`
     except IndexError as ie:
         print('Error: {}'.format(ie))
         print('Continuing... The rest of the image will be empty')
@@ -62,9 +66,8 @@ def main(images, output=None):
         output = 'spritesheet.png'
     final.save(output)
 
-    print("## Created Spritesheet '{}'".format(output))
-    print('Size: {}\nFormat: {}\nMode: {}'.format(
-        final.size, final.format, final.mode))
+    print("# Created Spritesheet '{}' ({} x {} px)".format(
+        output, final.size[0], final.size[1]))
 
 
 if __name__ == '__main__':
@@ -77,6 +80,12 @@ if __name__ == '__main__':
     parser.add_argument(
         '-o', '--output',
         help='output to given file')
+    parser.add_argument(
+        '-c', '--columns',
+        help='number of columns per row, \
+        \ne.g.: -c 4\
+        \nDEFAULT: 2',
+        type=int)
     args = parser.parse_args()
 
-    main(images=args.image, output=args.output)
+    main(images=args.image, output=args.output, cols=args.columns)

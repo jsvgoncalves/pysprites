@@ -9,3 +9,5 @@ Spritesheet generation tool. Generate spritesheets from multiple images.
     $ ./pysprites images/
     # To a specific file
     $ ./pysprites images -o myspritename.png
+
+Check `--help` for a full list of available commands.
